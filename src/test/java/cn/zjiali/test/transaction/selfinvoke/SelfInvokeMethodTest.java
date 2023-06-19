@@ -2,9 +2,12 @@ package cn.zjiali.test.transaction.selfinvoke;
 
 import cn.zjiali.test.transaction.entity.SysUser;
 import cn.zjiali.test.transaction.repository.SysUserRepository;
+import cn.zjiali.test.transaction.service.SysUserService;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cglib.core.DebuggingClassWriter;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -14,6 +17,13 @@ public class SelfInvokeMethodTest {
 
     @Autowired
     private SysUserRepository sysUserRepository;
+    @Autowired
+    private SysUserService sysUserService;
+
+    @BeforeAll
+    public static void before(){
+        System.setProperty(DebuggingClassWriter.DEBUG_LOCATION_PROPERTY, "./cglib");
+    }
 
     @Test
     @Transactional(rollbackFor = Exception.class)
@@ -25,6 +35,7 @@ public class SelfInvokeMethodTest {
         sysUser.setTs(LocalDateTime.now());
         SysUser save = sysUserRepository.save(sysUser);
         System.out.println("save: " + save);
+        sysUserService.insertUser();
         testUpdateUser(save.getUserId());
     }
 
